@@ -13,6 +13,7 @@ class TestHelloWorld(unittest.TestCase):
             assert dags.tags
 
         dag = dag_bag.get_dag(dag_id='exampleShouldFail')
+        print(dag)
         assert len(dag_bag.import_errors) == 0, "No Import Failures"
         assert dag is not None
     def test_python_operator(self):
