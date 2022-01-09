@@ -20,5 +20,3 @@ class TestHelloWorld(unittest.TestCase):
         test = PythonOperator(task_id="test", python_callable=lambda: "testme")
         result = test.execute(context={})
         assert result == "testme"
-if __name__ == '__main__':
-    unittest.main()
