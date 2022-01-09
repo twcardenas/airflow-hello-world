@@ -15,9 +15,5 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Init Airflow DB
-        run: airflow db init
-      - name: Active Dags
-        run: airflow dags list
       - name: Run tests with pytest
         run: python ./airflow/__tests__/hello_world_test.py
