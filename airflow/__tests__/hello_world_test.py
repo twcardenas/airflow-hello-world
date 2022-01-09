@@ -12,7 +12,7 @@ class TestHelloWorld(unittest.TestCase):
         for dag_id, dag in dag_bag.dags.items():
             assert dags.tags
 
-        dag = dag_bag.get_dag(dag_id='exampleShouldFail')
+        dag = dag_bag.get_dag(dag_id='example')
         print(dag)
         assert len(dag_bag.import_errors) == 0, "No Import Failures"
         assert dag is not None
