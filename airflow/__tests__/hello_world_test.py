@@ -1,6 +1,6 @@
 import unittest
 from airflow.models import DagBag
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 
 
 class TestHelloWorld(unittest.TestCase):
