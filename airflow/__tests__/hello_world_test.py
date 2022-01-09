@@ -4,7 +4,7 @@ from airflow.operators.python import PythonOperator
 
 
 class TestHelloWorld(unittest.TestCase):
-    def test_python_operator(self):
+    def test_dagbag(self):
         dag_bag = DagBag(include_examples=False)
         assert not dag_bag.import_errors
         assert not dag_bag.dags
