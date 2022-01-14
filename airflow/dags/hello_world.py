@@ -7,7 +7,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 
 default_args = {
-    'owner': 'airflow',
+    'owner': 'ownerName',
     'depends_on_past': False,
     'start_date': datetime(2022, 1, 8),
     'email': ['airflow@example.com'],
@@ -21,7 +21,7 @@ dag = DAG(
     default_args=default_args,
     description='A simple tutorial DAG',
     schedule_interval=None,
-    tags=['example'],
+    tags=["data lake demo"],
 )
 
 def print_function():
