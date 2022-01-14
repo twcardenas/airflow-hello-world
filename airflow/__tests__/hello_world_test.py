@@ -1,27 +1,78 @@
-import unittest
+import os
+import sys
+
+import pytest
 from airflow.models import DagBag
-from airflow.operators.python import PythonOperator
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "../dags"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../dags/utilities"))
+
+# Airflow variables called from DAGs under test are stubbed out
+os.environ["AIRFLOW_VAR_DATA_LAKE_BUCKET"] = "test_bucket"
+os.environ["AIRFLOW_VAR_ATHENA_QUERY_RESULTS"] = "SELECT 1;"
+os.environ["AIRFLOW_VAR_SNS_TOPIC"] = "test_topic"
+os.environ["AIRFLOW_VAR_REDSHIFT_UNLOAD_IAM_ROLE"] = "test_role_1"
+os.environ["AIRFLOW_VAR_GLUE_CRAWLER_IAM_ROLE"] = "test_role_2"
 
 
-class TestHelloWorld(unittest.TestCase):
-    def setUp(self):
-        pass
-    def test_dagbag(self):
-        dag_bag = DagBag(include_examples=False)
-        assert not dag_bag.import_errors
-        assert not dag_bag.dags
+@pytest.fixture(params=["../dags/"])
+def dag_bag(request):
+    return DagBag(dag_folder=request.param, include_examples=False)
 
-        for dag_id, dag in dag_bag.dags.items():
-            assert dags.tags
 
-        dag = dag_bag.get_dag(dag_id='example')
-        print(dag)
-        assert len(dag_bag.import_errors) == 0, "No Import Failures"
-        assert dag is not None
-    def test_python_operator(self):
-        test = PythonOperator(task_id="test", python_callable=lambda: "testme")
-        result = test.execute(context={})
-        assert result == "testme"
+def test_no_import_errors(dag_bag):
+    assert not dag_bag.import_errors
 
-if __name__ == '__main__':
-    unittest.main()
+
+def test_requires_tags(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        assert dag.tags
+
+
+def test_requires_specific_tag(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        try:
+            assert dag.tags.index("data lake demo") >= 0
+        except ValueError:
+            assert dag.tags.index("redshift demo") >= 0
+
+
+def test_desc_len_greater_than_fifteen(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        assert len(dag.description) > 15
+
+
+def test_owner_len_greater_than_five(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        assert len(dag.owner) > 5
+
+
+def test_owner_not_airflow(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        assert str.lower(dag.owner) != "airflow"
+
+
+def test_no_emails_on_retry(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        assert not dag.default_args["email_on_retry"]
+
+
+def test_no_emails_on_failure(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        assert not dag.default_args["email_on_failure"]
+
+
+def test_three_or_less_retries(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        assert dag.default_args["retries"] <= 3
+
+
+def test_dag_id_contains_prefix(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        assert str.lower(dag_id).find("__") != -1
+
+
+def test_dag_id_requires_specific_prefix(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        assert str.lower(dag_id).startswith("data_lake__") \
+               or str.lower(dag_id).startswith("redshift_demo__")
