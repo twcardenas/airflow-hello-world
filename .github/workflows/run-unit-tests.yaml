@@ -24,7 +24,7 @@ jobs:
     - name: Confirm Black code compliance
       run: |
         pip install pytest-black
-        pytest dags --black -v
+        pytest airflow/dags --black -v
     - name: Test with Pytest
       run: |
         pip install pytest
