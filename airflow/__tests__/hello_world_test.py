@@ -65,8 +65,3 @@ def test_no_emails_on_failure(dag_bag):
 def test_three_or_less_retries(dag_bag):
     for dag_id, dag in dag_bag.dags.items():
         assert dag.default_args["retries"] <= 3
-
-
-def test_dag_id_contains_prefix(dag_bag):
-    for dag_id, dag in dag_bag.dags.items():
-        assert str.lower(dag_id).find("__") != -1
